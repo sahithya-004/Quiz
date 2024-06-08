@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="quizApp">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            border: 5px solid #ccc;
+            border-radius: 20px;
+            background-color: #ADD8E6;
+        }
+
+        .question-container {
+            margin-bottom: 20px;
+        }
+
+        .answer {
+            cursor: pointer;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .wrong {
+            color: red;
+        }
+
+        .summary {
+            text-align: center;
+        }
+    </style>
+</head>
+<body ng-controller="QuizController">
+    <div class="container">
+        <div class="question-container" ng-repeat="question in questions">
+            <h3>Question {{ $index + 1 }} of {{questions.length}}</h3>
+            <p>{{question.question}}</p>
+            <div ng-repeat="answer in question.answers">
+                <span class="answer" ng-click="checkAnswer(answer, $parent.$index)">{{answer.text}}</span>
+            </div>
+            <div ng-if="question.feedback" class="alert" ng-class="{'alert-success': question.feedback.correct, 'alert-danger': !question.feedback.correct}">
+                {{question.feedback.message}}
+            </div>
+        </div>
+        <button class="btn btn-success finish-btn" ng-click="finishQuiz()">Finish</button>
+    </div>
+    <div class="container summary" ng-if="quizFinished">
+        <h3>Quiz Summary</h3>
+        <p>You answered {{correctAnswers}} out of {{questions.length}} questions correctly.</p>
+    </div>
+    <script>
+        var app = angular.module('quizApp', []);
+        app.controller('QuizController', function($scope) {
+            $scope.questions = [
+                {
+                    question: 'What is the capital of France?',
+                    answers: [
+                        { text: 'Berlin', correct: false },
+                        { text: 'Madrid', correct: false },
+                        { text: 'Paris', correct: true },
+                        { text: 'Rome', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Which planet is known as the Red Planet?',
+                    answers: [
+                        { text: 'Earth', correct: false },
+                        { text: 'Mars', correct: true },
+                        { text: 'Jupiter', correct: false },
+                        { text: 'Saturn', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'What is the largest ocean on Earth?',
+                    answers: [
+                        { text: 'Atlantic Ocean', correct: false },
+                        { text: 'Indian Ocean', correct: false },
+                        { text: 'Arctic Ocean', correct: false },
+                        { text: 'Pacific Ocean', correct: true }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Who wrote "Romeo and Juliet"?',
+                    answers: [
+                        { text: 'William Shakespeare', correct: true },
+                        { text: 'Jane Austen', correct: false },
+                        { text: 'Charles Dickens', correct: false },
+                        { text: 'Leo Tolstoy', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'What is the chemical symbol for gold?',
+                    answers: [
+                        { text: 'Go', correct: false },
+                        { text: 'Au', correct: true },
+                        { text: 'Ag', correct: false },
+                        { text: 'Cu', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Which is the largest continent by land area?',
+                    answers: [
+                        { text: 'North America', correct: false },
+                        { text: 'Asia', correct: true },
+                        { text: 'Africa', correct: false },
+                        { text: 'Europe', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Who painted the Mona Lisa?',
+                    answers: [
+                        { text: 'Leonardo da Vinci', correct: true },
+                        { text: 'Pablo Picasso', correct: false },
+                        { text: 'Vincent van Gogh', correct: false },
+                        { text: 'Michelangelo', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'What is the chemical symbol for water?',
+                    answers: [
+                        { text: 'H2O', correct: true },
+                        { text: 'CO2', correct: false },
+                        { text: 'O2', correct: false },
+                        { text: 'N2', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Which country is known as the Land of the Rising Sun?',
+                    answers: [
+                        { text: 'China', correct: false },
+                        { text: 'Japan', correct: true },
+                        { text: 'Korea', correct: false },
+                        { text: 'Thailand', correct: false }
+                    ],
+                    feedback: null
+                },
+                {
+                    question: 'Who developed the theory of relativity?',
+                    answers: [
+                        { text: 'Isaac Newton', correct: false },
+                        { text: 'Albert Einstein', correct: true },
+                        { text: 'Stephen Hawking', correct: false },
+                        { text: 'Galileo Galilei', correct: false }
+                    ],
+                    feedback: null
+                }
+            ];
+            $scope.correctAnswers = 0;
+            $scope.quizFinished = false;
+
+            $scope.checkAnswer = function(answer, questionIndex) {
+                var question = $scope.questions[questionIndex];
+                if (question.feedback) {
+                    return; 
+                }
+                if (answer.correct) {
+                    question.feedback = { correct: true, message: 'Correct!' };
+                    $scope.correctAnswers++;
+                } else {
+                    var correctAnswer = question.answers.find(a => a.correct);
+                    question.feedback = { correct: false, message: 'Wrong! The correct answer is: ' + correctAnswer.text };
+                }
+            };
+
+            $scope.finishQuiz = function() {
+                angular.forEach($scope.questions, function(question) {
+                    question.feedback = null; 
+                });
+                $scope.quizFinished = true;
+            };
+        });
+    </script>
+</body>
+</html>
